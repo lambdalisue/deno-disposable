@@ -2,7 +2,7 @@
 
 [![deno land](http://img.shields.io/badge/available%20on-deno.land/x-lightgrey.svg?logo=deno)](https://deno.land/x/disposable)
 [![deno doc](https://doc.deno.land/badge.svg)](https://doc.deno.land/https/deno.land/x/disposable/mod.ts)
-[![Test](https://github.com/lambdalisue/deno-disposable/workflows/Test/badge.svg)](https://github.com/lambdalisue/deno-disposable/actions?query=workflow%3ATest)
+[![Test](https://github.com/lambdalisue/deno-disposable/actions/workflows/test.yml/badge.svg)](https://github.com/lambdalisue/deno-disposable/actions/workflows/test.yml)
 
 This module provides `Disposable` type with `using()` and `usingSync()`
 functions to ensure a disposable resource is disposed. It is like C#'s
