@@ -15,6 +15,8 @@ Implement `Disposable` on a resource. Write code to release that resource in
 `dispose()` method. Then use it with `using` like:
 
 ```typescript
+import { Disposable, using } from "https://deno.land/x/disposable/mod.ts";
+
 class Connection implements Disposable {
   dispose() {
     // Synchronously release the resource
@@ -31,6 +33,8 @@ await using(new Connection(), (conn) => {
 You can use async function for `dispose()` or `fn` like
 
 ```typescript
+import { Disposable, using } from "https://deno.land/x/disposable/mod.ts";
+
 class Connection implements Disposable {
   async dispose() {
     // Asynchronously release the resource
@@ -48,6 +52,8 @@ If you are only using synchronous disposable and prefer synchronous code, use
 `usingSync` like:
 
 ```typescript
+import { Disposable, usingSync } from "https://deno.land/x/disposable/mod.ts";
+
 class Connection implements Disposable {
   dispose() {
     // Synchronously release the resource
@@ -64,6 +70,8 @@ usingSync(new Connection(), (conn) => {
 If you would like to dispose multiple disposables, use `usingAll` like:
 
 ```typescript
+import { Disposable, usingAll } from "https://deno.land/x/disposable/mod.ts";
+
 class ConnectionType1 implements Disposable {
   async dispose() {
     // Asynchronously release the resource
