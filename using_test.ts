@@ -5,7 +5,7 @@ import {
   assertThrowsAsync,
 } from "./deps_test.ts";
 import { Disposable } from "./types.ts";
-import { using, usingSync } from "./using.ts";
+import { using, usingAll, usingAllSync, usingSync } from "./using.ts";
 
 class SynchronousDisposable implements Disposable {
   #callback: () => void;
@@ -168,6 +168,132 @@ Deno.test("usingSync ensure synchronous disposable is disposed even on error", (
   assertEquals(calls, [
     "enter",
     "fn",
+    "dispose",
+    "leave",
+  ]);
+});
+
+Deno.test("usingAll ensure disposables are disposed", async () => {
+  const calls = [];
+
+  calls.push("enter");
+  const result = await usingAll(
+    [
+      new AsynchronousDisposable(() => calls.push("dispose")),
+      new SynchronousDisposable(() => calls.push("dispose")),
+      new AsynchronousDisposable(() => calls.push("dispose")),
+    ],
+    (r1, r2, r3) => {
+      assert(r1 instanceof AsynchronousDisposable);
+      assert(r2 instanceof SynchronousDisposable);
+      assert(r3 instanceof AsynchronousDisposable);
+      calls.push("fn");
+      return "Hello world!";
+    },
+  );
+  calls.push("leave");
+
+  assertEquals(result, "Hello world!");
+  assertEquals(calls, [
+    "enter",
+    "fn",
+    "dispose",
+    "dispose",
+    "dispose",
+    "leave",
+  ]);
+});
+
+Deno.test("usingAll ensure disposables are disposed even on error", async () => {
+  const calls = [];
+
+  calls.push("enter");
+  await assertThrowsAsync(async () => {
+    await usingAll(
+      [
+        new AsynchronousDisposable(() => calls.push("dispose")),
+        new SynchronousDisposable(() => calls.push("dispose")),
+        new AsynchronousDisposable(() => calls.push("dispose")),
+      ],
+      (r1, r2, r3) => {
+        assert(r1 instanceof AsynchronousDisposable);
+        assert(r2 instanceof SynchronousDisposable);
+        assert(r3 instanceof AsynchronousDisposable);
+        calls.push("fn");
+        throw new Error("Error");
+      },
+    );
+  });
+  calls.push("leave");
+
+  assertEquals(calls, [
+    "enter",
+    "fn",
+    "dispose",
+    "dispose",
+    "dispose",
+    "leave",
+  ]);
+});
+
+Deno.test("usingAllSync ensure synchronous disposables are disposed", () => {
+  const calls = [];
+
+  calls.push("enter");
+  const result = usingAllSync(
+    [
+      new SynchronousDisposable(() => calls.push("dispose")),
+      new SynchronousDisposable(() => calls.push("dispose")),
+      new SynchronousDisposable(() => calls.push("dispose")),
+    ],
+    (r1, r2, r3) => {
+      assert(r1 instanceof SynchronousDisposable);
+      assert(r2 instanceof SynchronousDisposable);
+      assert(r3 instanceof SynchronousDisposable);
+      calls.push("fn");
+      return "Hello world!";
+    },
+  );
+  calls.push("leave");
+
+  assertEquals(result, "Hello world!");
+  assertEquals(calls, [
+    "enter",
+    "fn",
+    "dispose",
+    "dispose",
+    "dispose",
+    "leave",
+  ]);
+});
+
+Deno.test("usingAllSync ensure synchronous disposables are disposed even on error", () => {
+  const calls = [];
+
+  calls.push("enter");
+  assertThrows(() => {
+    usingAllSync(
+      [
+        new SynchronousDisposable(() => calls.push("dispose")),
+        new SynchronousDisposable(() => calls.push("dispose")),
+        new SynchronousDisposable(() => calls.push("dispose")),
+      ],
+      (r1, r2, r3) => {
+        assert(r1 instanceof SynchronousDisposable);
+        assert(r2 instanceof SynchronousDisposable);
+        assert(r3 instanceof SynchronousDisposable);
+        calls.push("fn");
+        throw new Error("Error");
+      },
+    );
+  });
+  calls.push("leave");
+
+  assertEquals(calls, [
+    "enter",
+    "fn",
+    "dispose",
+    "dispose",
     "dispose",
     "leave",
   ]);
