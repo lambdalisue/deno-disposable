@@ -1,8 +1,8 @@
 import {
   assert,
   assertEquals,
+  assertRejects,
   assertThrows,
-  assertThrowsAsync,
 } from "./deps_test.ts";
 import { Disposable } from "./types.ts";
 import { using, usingAll, usingAllSync, usingSync } from "./using.ts";
@@ -59,7 +59,7 @@ Deno.test("using ensure asynchronous disposable is disposed even on error", asyn
   const calls = [];
 
   calls.push("enter");
-  await assertThrowsAsync(async () => {
+  await assertRejects(async () => {
     await using(
       new AsynchronousDisposable(() => calls.push("dispose")),
       (r) => {
@@ -106,7 +106,7 @@ Deno.test("using ensure synchronous disposable is disposed even on error", async
   const calls = [];
 
   calls.push("enter");
-  await assertThrowsAsync(async () => {
+  await assertRejects(async () => {
     await using(
       new SynchronousDisposable(() => calls.push("dispose")),
       (r) => {
@@ -208,7 +208,7 @@ Deno.test("usingAll ensure disposables are disposed even on error", async () => 
   const calls = [];
 
   calls.push("enter");
-  await assertThrowsAsync(async () => {
+  await assertRejects(async () => {
     await usingAll(
       [
         new AsynchronousDisposable(() => calls.push("dispose")),
