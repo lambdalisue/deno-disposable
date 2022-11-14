@@ -72,13 +72,13 @@ If you would like to dispose multiple disposables, use `usingAll` like:
 ```typescript
 import { Disposable, usingAll } from "https://deno.land/x/disposable/mod.ts";
 
-class ConnectionType1 implements Disposable {
+class Connection1 implements Disposable {
   async dispose() {
     // Asynchronously release the resource
   }
 }
 
-class ConnectionType2 implements Disposable {
+class Connection2 implements Disposable {
   dispose() {
     // Synchronously release the resource
   }
