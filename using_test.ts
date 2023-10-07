@@ -5,7 +5,12 @@ import {
   assertThrows,
 } from "https://deno.land/std@0.186.0/testing/asserts.ts";
 import { Disposable } from "./types.ts";
-import { using, usingAll, usingAllSync, usingSync } from "./using.ts";
+import {
+  usingAllResources,
+  usingAllResourcesSync,
+  usingResource,
+  usingResourceSync,
+} from "./using.ts";
 
 class SynchronousDisposable implements Disposable {
   #callback: () => void;
@@ -32,11 +37,11 @@ class AsynchronousDisposable implements Disposable {
   }
 }
 
-Deno.test("using ensure asynchronous disposable is disposed", async () => {
+Deno.test("usingResource ensure asynchronous disposable is disposed", async () => {
   const calls = [];
 
   calls.push("enter");
-  const result = await using(
+  const result = await usingResource(
     new AsynchronousDisposable(() => calls.push("dispose")),
     (r) => {
       assert(r instanceof AsynchronousDisposable);
@@ -55,12 +60,12 @@ Deno.test("using ensure asynchronous disposable is disposed", async () => {
   ]);
 });
 
-Deno.test("using ensure asynchronous disposable is disposed even on error", async () => {
+Deno.test("usingResource ensure asynchronous disposable is disposed even on error", async () => {
   const calls = [];
 
   calls.push("enter");
   await assertRejects(async () => {
-    await using(
+    await usingResource(
       new AsynchronousDisposable(() => calls.push("dispose")),
       (r) => {
         assert(r instanceof AsynchronousDisposable);
@@ -79,11 +84,11 @@ Deno.test("using ensure asynchronous disposable is disposed even on error", asyn
   ]);
 });
 
-Deno.test("using ensure synchronous disposable is disposed", async () => {
+Deno.test("usingResource ensure synchronous disposable is disposed", async () => {
   const calls = [];
 
   calls.push("enter");
-  const result = await using(
+  const result = await usingResource(
     new SynchronousDisposable(() => calls.push("dispose")),
     (r) => {
       assert(r instanceof SynchronousDisposable);
@@ -102,12 +107,12 @@ Deno.test("using ensure synchronous disposable is disposed", async () => {
   ]);
 });
 
-Deno.test("using ensure synchronous disposable is disposed even on error", async () => {
+Deno.test("usingResource ensure synchronous disposable is disposed even on error", async () => {
   const calls = [];
 
   calls.push("enter");
   await assertRejects(async () => {
-    await using(
+    await usingResource(
       new SynchronousDisposable(() => calls.push("dispose")),
       (r) => {
         assert(r instanceof SynchronousDisposable);
@@ -126,11 +131,11 @@ Deno.test("using ensure synchronous disposable is disposed even on error", async
   ]);
 });
 
-Deno.test("usingSync ensure synchronous disposable is disposed", () => {
+Deno.test("usingResourceSync ensure synchronous disposable is disposed", () => {
   const calls = [];
 
   calls.push("enter");
-  const result = usingSync(
+  const result = usingResourceSync(
     new SynchronousDisposable(() => calls.push("dispose")),
     (r) => {
       assert(r instanceof SynchronousDisposable);
@@ -149,12 +154,12 @@ Deno.test("usingSync ensure synchronous disposable is disposed", () => {
   ]);
 });
 
-Deno.test("usingSync ensure synchronous disposable is disposed even on error", () => {
+Deno.test("usingResourceSync ensure synchronous disposable is disposed even on error", () => {
   const calls = [];
 
   calls.push("enter");
   assertThrows(() => {
-    usingSync(
+    usingResourceSync(
       new SynchronousDisposable(() => calls.push("dispose")),
       (r) => {
         assert(r instanceof SynchronousDisposable);
@@ -173,11 +178,11 @@ Deno.test("usingSync ensure synchronous disposable is disposed even on error", (
   ]);
 });
 
-Deno.test("usingAll ensure disposables are disposed", async () => {
+Deno.test("usingAllResources ensure disposables are disposed", async () => {
   const calls = [];
 
   calls.push("enter");
-  const result = await usingAll(
+  const result = await usingAllResources(
     [
       new AsynchronousDisposable(() => calls.push("dispose")),
       new SynchronousDisposable(() => calls.push("dispose")),
@@ -204,12 +209,12 @@ Deno.test("usingAll ensure disposables are disposed", async () => {
   ]);
 });
 
-Deno.test("usingAll ensure disposables are disposed even on error", async () => {
+Deno.test("usingAllResources ensure disposables are disposed even on error", async () => {
   const calls = [];
 
   calls.push("enter");
   await assertRejects(async () => {
-    await usingAll(
+    await usingAllResources(
       [
         new AsynchronousDisposable(() => calls.push("dispose")),
         new SynchronousDisposable(() => calls.push("dispose")),
@@ -236,11 +241,11 @@ Deno.test("usingAll ensure disposables are disposed even on error", async () => 
   ]);
 });
 
-Deno.test("usingAllSync ensure synchronous disposables are disposed", () => {
+Deno.test("usingAllResourcesSync ensure synchronous disposables are disposed", () => {
   const calls = [];
 
   calls.push("enter");
-  const result = usingAllSync(
+  const result = usingAllResourcesSync(
     [
       new SynchronousDisposable(() => calls.push("dispose")),
       new SynchronousDisposable(() => calls.push("dispose")),
@@ -267,12 +272,12 @@ Deno.test("usingAllSync ensure synchronous disposables are disposed", () => {
   ]);
 });
 
-Deno.test("usingAllSync ensure synchronous disposables are disposed even on error", () => {
+Deno.test("usingAllResourcesSync ensure synchronous disposables are disposed even on error", () => {
   const calls = [];
 
   calls.push("enter");
   assertThrows(() => {
-    usingAllSync(
+    usingAllResourcesSync(
       [
         new SynchronousDisposable(() => calls.push("dispose")),
         new SynchronousDisposable(() => calls.push("dispose")),

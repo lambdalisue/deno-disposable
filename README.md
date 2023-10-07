@@ -4,18 +4,27 @@
 [![deno doc](https://doc.deno.land/badge.svg)](https://doc.deno.land/https/deno.land/x/disposable/mod.ts)
 [![Test](https://github.com/lambdalisue/deno-disposable/actions/workflows/test.yml/badge.svg)](https://github.com/lambdalisue/deno-disposable/actions/workflows/test.yml)
 
-This module provides `Disposable` type with `using()`, `usingSync()`,
-`usingAll()`, and `usingAllSync()` functions to ensure a disposable resource is
-disposed. It is like C#'s `IDisposable` with `using` or Python's context with
-`with`.
+This module provides `Disposable` type with `usingResource()`,
+`usingResourceSync()`, `usingAllResources()`, and `usingAllResourcesSync()`
+functions to ensure a disposable resource is disposed. It is like C#'s
+`IDisposable` with `using` or Python's context with `with`.
+
+Note that
+[TypeScript 5.2 add supports](https://github.com/microsoft/TypeScript/issues/52955)
+for
+[Explicit Resource Management](https://github.com/tc39/proposal-explicit-resource-management)
+which will take over the functionality provided by this library.
 
 ## Usage
 
 Implement `Disposable` on a resource. Write code to release that resource in
-`dispose()` method. Then use it with `using` like:
+`dispose()` method. Then use it with `usingResource` like:
 
 ```typescript
-import { Disposable, using } from "https://deno.land/x/disposable/mod.ts";
+import {
+  Disposable,
+  usingResource,
+} from "https://deno.land/x/disposable/mod.ts";
 
 class Connection implements Disposable {
   dispose() {
@@ -23,7 +32,7 @@ class Connection implements Disposable {
   }
 }
 
-await using(new Connection(), (conn) => {
+await usingResource(new Connection(), (conn) => {
   // The connection is alive in this block
   // Do whatever you want synchronously
 });
@@ -33,7 +42,10 @@ await using(new Connection(), (conn) => {
 You can use async function for `dispose()` or `fn` like
 
 ```typescript
-import { Disposable, using } from "https://deno.land/x/disposable/mod.ts";
+import {
+  Disposable,
+  usingResource,
+} from "https://deno.land/x/disposable/mod.ts";
 
 class Connection implements Disposable {
   async dispose() {
@@ -41,7 +53,7 @@ class Connection implements Disposable {
   }
 }
 
-await using(new Connection(), async (conn) => {
+await usingResource(new Connection(), async (conn) => {
   // The connection is alive in this block
   // Do whatever you want asynchronously
 });
@@ -49,10 +61,13 @@ await using(new Connection(), async (conn) => {
 ```
 
 If you are only using synchronous disposable and prefer synchronous code, use
-`usingSync` like:
+`usingResourceSync` like:
 
 ```typescript
-import { Disposable, usingSync } from "https://deno.land/x/disposable/mod.ts";
+import {
+  Disposable,
+  usingResourceSync,
+} from "https://deno.land/x/disposable/mod.ts";
 
 class Connection implements Disposable {
   dispose() {
@@ -60,17 +75,20 @@ class Connection implements Disposable {
   }
 }
 
-usingSync(new Connection(), (conn) => {
+usingResourceSync(new Connection(), (conn) => {
   // The connection is alive in this block
   // Do whatever you want
 });
 // The connection is disposed after above block
 ```
 
-If you would like to dispose multiple disposables, use `usingAll` like:
+If you would like to dispose multiple disposables, use `usingAllResources` like:
 
 ```typescript
-import { Disposable, usingAll } from "https://deno.land/x/disposable/mod.ts";
+import {
+  Disposable,
+  usingAllResources,
+} from "https://deno.land/x/disposable/mod.ts";
 
 class Connection1 implements Disposable {
   async dispose() {
@@ -84,14 +102,17 @@ class Connection2 implements Disposable {
   }
 }
 
-await usingAll([new Connection1(), new Connection2()], async (conn1, conn2) => {
-  // The connections are alive in this block
-  // Do whatever you want asynchronously
-});
+await usingAllResources(
+  [new Connection1(), new Connection2()],
+  async (conn1, conn2) => {
+    // The connections are alive in this block
+    // Do whatever you want asynchronously
+  },
+);
 // The connections are disposed after above block
 ```
 
-Or use `usingAllSync` for synchronous disposables.
+Or use `usingAllResourcesSync` for synchronous disposables.
 
 ## License
 
