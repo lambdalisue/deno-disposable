@@ -3,7 +3,7 @@ import {
   assertEquals,
   assertRejects,
   assertThrows,
-} from "https://deno.land/std@0.203.0/assert/mod.ts";
+} from "https://deno.land/std@0.221.0/assert/mod.ts";
 import { Disposable } from "./types.ts";
 import {
   usingAllResources,
